@@ -6,9 +6,14 @@ public class Main {
 
         Field field = new Field();
 
-        field.printField();
-
         field.prepareField();
-        System.out.println(field.ships[0].isStatus());
+
+        for (int [] row : field.ships[0].getCoordinates()){
+            for (int  c: row){
+                System.out.print(c+" ");
+            }
+            System.out.println("");
+        }
+
     }
 }
