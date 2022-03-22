@@ -6,9 +6,7 @@ public class Main {
 
         Field field = new Field();
 
-        field.printField();
-
         field.prepareField();
-        System.out.println(field.ships[0].isStatus());
+
     }
 }

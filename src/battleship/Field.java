@@ -2,24 +2,28 @@ package battleship;
 
 import battleship.ships.*;
 
-import java.util.Scanner;
+import java.util.Objects;
 
 public class Field {
 
-    //INIT FIELD
-    String [][] grid = new String [11][11];
+    String[][] grid = new String[11][11];
 
-    //INIT LIST OF SHIPS
+    //LIST OF SHIPS
     Ship[] ships = {
             new AircraftCarrier(),
             new Battleship(),
-            new Cruiser(),
             new Submarine(),
+            new Cruiser(),
             new Destroyer()
     };
 
-    //CONSTRUCTOR INIT ALL CELLS OF FIELD
-    Field () {
+    //CONSTRUCTOR
+    Field() {
+        initField();
+    }
+
+    //METHOD INIT ALL CELLS OF FIELD
+    void initField() {
         for (int x = 0; x < 11; x++) {      //init '~'
             for (int y = 0; y < 11; y++) {
                 grid[x][y] = "~";
@@ -38,28 +42,27 @@ public class Field {
     }
 
     //METHOD PRINT FIELD
-    public void printField (){
-        for (String[] row: grid){
-            for (String symbol: row){
-                System.out.print(symbol+ " ");
+    public void printField() {
+        for (String[] row : grid) {
+            for (String symbol : row) {
+                System.out.print(symbol + " ");
             }
             System.out.print("\n");
         }
     }
 
     //METHOD PUT ALL SHIPS ON THE FIELD
-    public void prepareField (){
-        Scanner sc = new Scanner(System.in);
-        for (int i=0; i<ships.length; i++){
-            if(!ships[i].isStatus()){   //looking for ship with status 'false'
+    public void prepareField() {
+        printField();
+        for (int i = 0; i < ships.length; i++) {
+            if (!ships[i].isStatus()) {   //looking for ship with status 'false'
                 Ship ship = ships[i];
                 ship.printPutMessage();
-                while (!ship.isStatus()) { //trying to put the coordinates and check it.
-                    String begin = sc.next();
-                    String end = sc.nextLine();
-                    ship.setCoordinates(begin, end);
-                    if (this.checkCoordinates(ship)) { //if coordinates is checked, initializing current ship
+                while (!ship.isStatus()) {     //is status false
+                    ship.inputCoordinates();   //put the coordinates
+                    if (checkShipLocation(ship)) { //if ship location is checked, do initialize the current ship
                         ship.setStatus(true);
+                        putShip(ship);
                         ships[i] = ship;
                         printField();
                     }
@@ -68,8 +71,65 @@ public class Field {
         }
     }
 
-    public boolean checkCoordinates (Ship ship){ // !!!!!not finished. need continue this method
-        return true;
+    //CHECK ALL SPACE AROUND SHIP
+    boolean checkShipLocation(Ship ship) {
+        if (isCellsEmpty(getArea(ship, 0), ship)
+                && isCellsEmpty(getArea(ship, -1), ship)
+                && isCellsEmpty(getArea(ship, 1), ship)) {
+            return true;
+        } else {
+            ship.printErrorToClose();
+            return false;
+        }
     }
 
+    //CHECK IF THE CHARACTERS MATCHES '~'
+    boolean isCellsEmpty(int[][] line, Ship ship) {
+        boolean checked = true;
+        for (int i = 0; i < line[0].length; i++) {
+            int x = line[0][i];
+            int y = line[1][i];
+            if((x>0 && x<11) && (y>0 && y<11)) {
+                if (!Objects.equals(grid[y][x], "~")) {
+                    checked = false;
+                }
+            }
+        }
+        return checked;
+    }
+
+    //METHOD CREATE AREA AROUND SHIP
+    //'index' shifting static line to the left or to the right relatively from central position
+    int[][] getArea(Ship ship, int lineIndex) {  //indexes: center0; left-1; right+1
+        int[][] shipCoordinates = ship.getCoordinates();
+        int sizeArea = shipCoordinates[0].length + 2;
+        int sizeShip = ship.getSize();
+        int[][] area = new int[2][sizeArea];
+        int a,b;
+        if(ship.isHorizontal()){
+            a=0;
+            b=1;
+        } else {
+            a=1;
+            b=0;
+        }
+        for (int i = 0; i < sizeArea; i++) {
+            area[a][0] = shipCoordinates[a][0] - 1;
+            area[a][sizeArea - 1] = shipCoordinates[a][sizeShip - 1] + 1;
+            area[b][i] = shipCoordinates[b][0]+lineIndex;
+            if (i<sizeShip) {
+                area[a][i + 1] = shipCoordinates[a][i];
+            }
+        }
+        return area;
+    }
+
+    void putShip (Ship ship){
+        int[][] coordinates = ship.getCoordinates();
+        for (int i = 0; i < coordinates[0].length; i++) {
+            int x = coordinates[0][i];
+            int y = coordinates[1][i];
+            grid[y][x] = "O";
+        }
+    }
 }
