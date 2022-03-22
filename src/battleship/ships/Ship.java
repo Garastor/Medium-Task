@@ -13,63 +13,13 @@ public abstract class Ship {
     boolean status = false;  //indicates whether the ship is in the field or not
     boolean destroy = isDestroy(size, damage); //indicates whether ship destroy or not
     boolean horizontal; //indicates ship position (horizontal or not)
-    int[][] coordinates;
+    int[][] coordinates; // row[0] - x axis; row[1] - y axis
 
     //CHECK FOR DESTROY
     boolean isDestroy(int size, int damage) {
         if (damage == size) {
             return true;
         } else return false;
-    }
-
-    //PRINT MESSAGE FOR ENTERING COORDINATES
-    public void printPutMessage() {
-        System.out.printf("Enter the coordinates of the %s (%d cells):\n", this.shipName, this.size);
-    }
-
-    //PRINT ERROR MESSAGE: ship too close to another one
-    public void printErrorToClose() {
-        System.out.println("Error! You placed it too close to another one. Try again:");
-    }
-
-    //PRINT ERROR MESSAGE: wrong ship location
-    public void printErrorLocation() {
-        System.out.println("Error! Wrong ship location! Try again:");
-    }
-
-    //PRINT ERROR MESSAGE: wrong length of ship
-    public void printErrorWrongLength() {
-        System.out.printf("Error! Wrong length of the %s! Try again:", this.shipName);
-    }
-
-
-    //GETTERS AND SETTERS
-    public int getSize() {
-        return size;
-    }
-
-    public int getDamage() {
-        return damage;
-    }
-
-    public void setDamage(int damage) {
-        this.damage = damage;
-    }
-
-    public boolean isStatus() {
-        return status;
-    }
-
-    public void setStatus(boolean status) {
-        this.status = status;
-    }
-
-    public int[][] getCoordinates() {
-        return coordinates;
-    }
-
-    public boolean isHorizontal () {
-        return horizontal;
     }
 
     //METHOD ACCEPT COORDINATES (like A1 A4), VERIFY IT AND TRY TO CREATE SHIP
@@ -137,10 +87,10 @@ public abstract class Ship {
 
     //METHOD RETURN X-COORDINATE (numbers)
     public int getX(String coordinate) {
-        if(coordinate.length()>3){                                   //return number if it's 10
+        if(coordinate.length()>2){                                   //return number if it's 10
             return 10;
         } else {
-            return coordinate.charAt(1);//return number if it's [1-9]
+            return Integer.parseInt(String.valueOf(coordinate.charAt(1)));//return number if it's [1-9]
         }
     }
 
@@ -156,13 +106,13 @@ public abstract class Ship {
             aIndex = 0;
             bIndex = 1;
             valueFrom = getX(begin);
-            valueTo = getX(begin);
+            valueTo = getX(end);
             staticAxis = getY(begin);
         }
         int count = 0;
         for (int i = valueFrom; i<= valueTo; i++){
-            coordinates[aIndex][count] = i;                      //init x
-            coordinates[bIndex][count] = staticAxis;            //init y
+            coordinates[aIndex][count] = i;
+            coordinates[bIndex][count] = staticAxis;
             count++;
         }
         return coordinates;
@@ -181,5 +131,54 @@ public abstract class Ship {
             }
         }
         return true;
+    }
+
+    //PRINT MESSAGE FOR ENTERING COORDINATES
+    public void printPutMessage() {
+        System.out.printf("Enter the coordinates of the %s (%d cells):\n", this.shipName, this.size);
+    }
+
+    //PRINT ERROR MESSAGE: ship too close to another one
+    public void printErrorToClose() {
+        System.out.println("Error! You placed it too close to another one. Try again:");
+    }
+
+    //PRINT ERROR MESSAGE: wrong ship location
+    public void printErrorLocation() {
+        System.out.println("Error! Wrong ship location! Try again:");
+    }
+
+    //PRINT ERROR MESSAGE: wrong length of ship
+    public void printErrorWrongLength() {
+        System.out.printf("Error! Wrong length of the %s! Try again:", this.shipName);
+    }
+
+    //GETTERS AND SETTERS
+    public int getSize() {
+        return size;
+    }
+
+    public int getDamage() {
+        return damage;
+    }
+
+    public void setDamage(int damage) {
+        this.damage = damage;
+    }
+
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
+
+    public int[][] getCoordinates() {
+        return coordinates;
+    }
+
+    public boolean isHorizontal () {
+        return horizontal;
     }
 }
