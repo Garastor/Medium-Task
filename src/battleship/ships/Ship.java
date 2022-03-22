@@ -8,32 +8,25 @@ import java.util.regex.Pattern;
 public abstract class Ship {
 
     String shipName;
-    int size;       //indicates the size of the occupying cells
-    int damage = 0;     //indicates how many cells is left
-    boolean status = false;  //indicates whether the ship is in the field or not
-    boolean destroy = isDestroy(size, damage); //indicates whether ship destroy or not
-    boolean horizontal; //indicates ship position (horizontal or not)
-    int[][] coordinates; // row[0] - x axis; row[1] - y axis
-
-    //CHECK FOR DESTROY
-    boolean isDestroy(int size, int damage) {
-        if (damage == size) {
-            return true;
-        } else return false;
-    }
+    int size;                       //indicates the number of the occupying cells
+    boolean status = false;         //indicates whether the ship is placed on the field or not
+    boolean horizontal;             //indicates ship position (horizontal or not)
+    int[][] coordinates;            //row[0] - x axis;    row[1] - y axis
+    int hitPoints = size;           //if all hitPoints disappear, the ship will sink
+    boolean destroy = false;        //indicates whether ship destroy or not
 
     //METHOD ACCEPT COORDINATES (like A1 A4), VERIFY IT AND TRY TO CREATE SHIP
     public void inputCoordinates() {
         boolean isVerified = false;
         while (!isVerified) {
-            Scanner sc = new Scanner(System.in);                            //input coordinates
+            Scanner sc = new Scanner(System.in);            //input the coordinates
             String begin = sc.next();
             String end = sc.next();
             Pattern pattern = Pattern.compile("[A-J]+10|[A-J]+[1-9]", Pattern.CASE_INSENSITIVE);
             Matcher beginMatcher = pattern.matcher(begin);                  //verify coordinates
             Matcher endMatcher = pattern.matcher(end);
             if (beginMatcher.matches() && endMatcher.matches()) {
-                if (!isSortedCoordinates(begin, end)){      // check if "begins" is less than "end" and provide it
+                if (!isSortedCoordinates(begin, end)){      // check if "begin" is less than "end"
                     String temp = begin;
                     begin = end;
                     end = temp;
@@ -158,12 +151,20 @@ public abstract class Ship {
         return size;
     }
 
-    public int getDamage() {
-        return damage;
+    public boolean isDestroy() {
+        return destroy;
     }
 
-    public void setDamage(int damage) {
-        this.damage = damage;
+    public void setDestroy(boolean destroy) {
+        this.destroy = destroy;
+    }
+
+    public int getHitPoints() {
+        return hitPoints;
+    }
+
+    public void setHitPoints(int hitPoints) {
+        this.hitPoints = hitPoints;
     }
 
     public boolean isStatus() {

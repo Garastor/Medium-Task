@@ -7,8 +7,8 @@ import java.util.Objects;
 public class Field {
 
     String[][] grid = new String[11][11];
+    boolean allShipsSink = false;
 
-    //LIST OF SHIPS
     Ship[] ships = {
             new AircraftCarrier(),
             new Battleship(),
@@ -17,7 +17,8 @@ public class Field {
             new Destroyer()
     };
 
-    //CONSTRUCTOR
+    int shipCount = ships.length;
+
     Field() {
         initField();
     }
@@ -52,8 +53,9 @@ public class Field {
     }
 
     //METHOD PUT ALL SHIPS ON THE FIELD
-    public void prepareField() {
+    public boolean prepareField() {
         printField();
+        boolean done;
         for (int i = 0; i < ships.length; i++) {
             if (!ships[i].isStatus()) {   //looking for ship with status 'false'
                 Ship ship = ships[i];
@@ -69,6 +71,7 @@ public class Field {
                 }
             }
         }
+        return true;
     }
 
     //CHECK ALL SPACE AROUND SHIP
@@ -98,7 +101,7 @@ public class Field {
         return checked;
     }
 
-    //METHOD CREATE AREA AROUND SHIP
+    //METHOD CREATE SPACE AROUND SHIP
     //'index' shifting static line to the left or to the right relatively from central position
     int[][] getArea(Ship ship, int lineIndex) {  //indexes: center0; left-1; right+1
         int[][] shipCoordinates = ship.getCoordinates();
@@ -124,6 +127,7 @@ public class Field {
         return area;
     }
 
+    //METHOD PUT SHIP ON THE FIELD
     void putShip (Ship ship){
         int[][] coordinates = ship.getCoordinates();
         for (int i = 0; i < coordinates[0].length; i++) {
@@ -132,4 +136,42 @@ public class Field {
             grid[y][x] = "O";
         }
     }
+
+    //METHOD CALCULATE DESTROYED AND DAMAGED SHIPS
+     boolean checkShip(int x, int y){
+        for (int i=0; i<ships.length; i++){
+            Ship ship = ships[i];
+            if(!ship.isDestroy()) {                           //find not destroyed ships
+                int[][] coordinates = ship.getCoordinates();
+                for (int a = 0; a < coordinates[0].length; a++) {
+                    if (coordinates[0][a] == x && coordinates[1][a] == y) {
+                        int hitPoints = ship.getHitPoints()-1;
+                        ship.setHitPoints(hitPoints);
+                        if (ship.getHitPoints() == 0){
+                            ship.setDestroy(true);
+                            shipCount--;
+                            ships[i] = ship;
+                            if(shipCount == 0){
+                                allShipsSink = true;
+                                System.out.println("You sank the last ship. You won. Congratulations!\n");
+                            } else {
+                                System.out.println("You sank a ship! Specify a new target:\n");
+                            }
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+     }
+
+    public String[][] getGrid() {
+        return grid;
+    }
+
+    public boolean isAllShipsSink() {
+        return allShipsSink;
+    }
+
 }

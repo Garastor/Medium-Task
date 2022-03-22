@@ -6,5 +6,6 @@ public class Cruiser extends Ship{
         this.size = 3;
         this.shipName = "Cruiser";
         this.coordinates = new int [2][size];
+        this.hitPoints = 3;
     }
 }

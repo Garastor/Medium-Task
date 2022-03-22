@@ -6,5 +6,6 @@ public class Battleship extends Ship{
         this.size = 4;
         this.shipName = "Battleship";
         this.coordinates = new int [2][size];
+        this.hitPoints = 4;
     }
 }
