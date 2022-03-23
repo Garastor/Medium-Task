@@ -8,13 +8,6 @@ import java.util.regex.Pattern;
 
 public class ShipService {
 
-    Ship ship;
-
-    public ShipService (Ship ship) {
-        this.ship = ship;
-    }
-
-    //METHOD ACCEPT COORDINATES (like A1 A4), VERIFY IT AND TRY TO CREATE SHIP
     public static Ship createShip(Ship ship) {
         boolean isVerified = false;
         while (!isVerified) {
@@ -49,7 +42,7 @@ public class ShipService {
             return false;
         } else if (numberBegin == numberEnd) {                                //numbers is equals (x axis is static)?
             if (((symbolEnd - symbolBegin) + 1) == ship.getSize()) {     // test length
-                ship.setCoordinates(parseCoordinates('y', begin, end));  // length is OK
+                ship.setCoordinates(setCoordinates('y', begin, end));  // length is OK
                 ship.setHorizontal(false);
                 return true;
             } else {
@@ -58,7 +51,7 @@ public class ShipService {
             }
         } else if (symbolBegin == symbolEnd) {                                //symbols is equals (y axis is static)?
             if (((numberEnd - numberBegin) + 1) == ship.getSize()) {     // test length
-                ship.setCoordinates(parseCoordinates('x', begin, end));  // length is OK
+                ship.setCoordinates(setCoordinates('x', begin, end));  // length is OK
                 ship.setHorizontal(true);
                 return true;
             } else {
@@ -85,7 +78,7 @@ public class ShipService {
     }
 
     //METHOD SET ALL COORDINATES FROM FIRST xy TO LAST xy;
-    public static int[][] parseCoordinates(char variableAxis, String begin, String end) {
+    public static int[][] setCoordinates(char variableAxis, String begin, String end) {
         int aIndex = 1;
         int bIndex = 0;
         int valueFrom = getY(begin);
