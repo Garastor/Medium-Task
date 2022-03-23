@@ -1,30 +1,29 @@
-package battleship;
+package battleship.service;
 
-import battleship.ships.*;
+import battleship.entity.Field;
+import battleship.entity.Ship;
 
 import java.util.Objects;
 
-public class Field {
+public class FieldService {
 
-    String[][] grid = new String[11][11];
-    boolean allShipsSink = false;
-
-    Ship[] ships = {
-            new AircraftCarrier(),
-            new Battleship(),
-            new Submarine(),
-            new Cruiser(),
-            new Destroyer()
-    };
-
-    int shipCount = ships.length;
-
-    Field() {
-        initField();
+    //METHOD INIT FIELD
+    public static Field initField() {
+        Field field = new Field();
+        field.setGrid(initGrid());
+        field.setShips(new Ship[]{
+                new Ship("Aircraft Carrier", 5),
+                new Ship("Battleship", 4),
+                new Ship("Submarine", 3),
+                new Ship("Cruiser", 3),
+                new Ship("Destroyer", 2),
+        });
+        field.setShipCount(5);
+        return field;
     }
 
-    //METHOD INIT ALL CELLS OF FIELD
-    void initField() {
+    static String[][] initGrid() {
+        String[][] grid = new String[11][11];
         for (int x = 0; x < 11; x++) {      //init '~'
             for (int y = 0; y < 11; y++) {
                 grid[x][y] = "~";
@@ -40,10 +39,12 @@ public class Field {
             symbols++;
         }
         grid[0][0] = "";
+        return grid;
     }
 
     //METHOD PRINT FIELD
-    public void printField() {
+    public static void printField(Field field) {
+        String[][] grid = field.getGrid();
         for (String[] row : grid) {
             for (String symbol : row) {
                 System.out.print(symbol + " ");
@@ -53,41 +54,43 @@ public class Field {
     }
 
     //METHOD PUT ALL SHIPS ON THE FIELD
-    public boolean prepareField() {
-        printField();
-        boolean done;
+    public static Field prepareField() {
+        Field field = initField();
+        printField(field);
+        Ship[] ships = field.getShips();
         for (int i = 0; i < ships.length; i++) {
             if (!ships[i].isStatus()) {   //looking for ship with status 'false'
                 Ship ship = ships[i];
-                ship.printPutMessage();
+                ShipService.printPutMessage(ship);
                 while (!ship.isStatus()) {     //is status false
-                    ship.inputCoordinates();   //put the coordinates
-                    if (checkShipLocation(ship)) { //if ship location is checked, do initialize the current ship
+                    ship = ShipService.createShip(ship);//put the coordinates
+                    if (checkSpace(ship, field)) { //if ship location is checked, do initialize the current ship
                         ship.setStatus(true);
-                        putShip(ship);
+                        field.setGrid(putShip(ship, field));
                         ships[i] = ship;
-                        printField();
+                        printField(field);
                     }
                 }
             }
         }
-        return true;
+        return field;
     }
 
     //CHECK ALL SPACE AROUND SHIP
-    boolean checkShipLocation(Ship ship) {
-        if (isCellsEmpty(getArea(ship, 0), ship)
-                && isCellsEmpty(getArea(ship, -1), ship)
-                && isCellsEmpty(getArea(ship, 1), ship)) {
+    static boolean checkSpace(Ship ship, Field field) {
+        if (checkCells(createSpace(ship, 0), field)
+                && checkCells(createSpace(ship, -1), field)
+                && checkCells(createSpace(ship, 1), field)) {
             return true;
         } else {
-            ship.printErrorToClose();
+            ShipService.printErrorToClose();
             return false;
         }
     }
 
     //CHECK IF THE CHARACTERS MATCHES '~'
-    boolean isCellsEmpty(int[][] line, Ship ship) {
+    static boolean checkCells(int[][] line, Field field) {
+        String[][] grid = field.getGrid();
         boolean checked = true;
         for (int i = 0; i < line[0].length; i++) {
             int x = line[0][i];
@@ -103,7 +106,7 @@ public class Field {
 
     //METHOD CREATE SPACE AROUND SHIP
     //'index' shifting static line to the left or to the right relatively from central position
-    int[][] getArea(Ship ship, int lineIndex) {  //indexes: center0; left-1; right+1
+    static int[][] createSpace(Ship ship, int lineIndex) {  //indexes: center0; left-1; right+1
         int[][] shipCoordinates = ship.getCoordinates();
         int sizeArea = shipCoordinates[0].length + 2;
         int sizeShip = ship.getSize();
@@ -128,17 +131,22 @@ public class Field {
     }
 
     //METHOD PUT SHIP ON THE FIELD
-    void putShip (Ship ship){
+    static String[][] putShip (Ship ship, Field field){
+        String[][] grid = field.getGrid();
         int[][] coordinates = ship.getCoordinates();
         for (int i = 0; i < coordinates[0].length; i++) {
             int x = coordinates[0][i];
             int y = coordinates[1][i];
             grid[y][x] = "O";
         }
+        field.setGrid(grid);
+        return grid;
     }
 
     //METHOD CALCULATE DESTROYED AND DAMAGED SHIPS
-     boolean checkShip(int x, int y){
+    public static Field checkShipsDamage(Field field, int x, int y){
+        Ship[] ships = field.getShips();
+        int shipCount = field.getShipCount();
         for (int i=0; i<ships.length; i++){
             Ship ship = ships[i];
             if(!ship.isDestroy()) {                           //find not destroyed ships
@@ -152,26 +160,23 @@ public class Field {
                             shipCount--;
                             ships[i] = ship;
                             if(shipCount == 0){
-                                allShipsSink = true;
+                                field.setAllShipsSink(true);
                                 System.out.println("You sank the last ship. You won. Congratulations!\n");
                             } else {
                                 System.out.println("You sank a ship! Specify a new target:\n");
                             }
-                            return true;
+                        } else {
+                            System.out.println("You hit a ship!");
                         }
                     }
                 }
             }
         }
-        return false;
-     }
-
-    public String[][] getGrid() {
-        return grid;
+        field.setShipCount(shipCount);
+        field.setShips(ships);
+        return field;
     }
 
-    public boolean isAllShipsSink() {
-        return allShipsSink;
-    }
+
 
 }
